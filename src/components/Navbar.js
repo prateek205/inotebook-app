@@ -1,11 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   let location = useLocation();
-  useEffect(() => {
-    // console.log(location.pathname);
-  }, [location]);
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -36,7 +33,12 @@ const Navbar = () => {
                   About
                 </Link>
               </li>
+
             </ul>
+              <div>
+                <Link to="/login" role="button" className="btn btn-primary mx-1"> Login </Link>
+                <Link to="/sign-up" role="button" className="btn btn-primary mx-1"> Sign-up </Link>
+              </div>
           </div>
         </div>
       </nav>
