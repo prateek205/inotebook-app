@@ -5,7 +5,8 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userdetails = require("../middleware/userdetails");
-const JWT_SECRET = "prateek@bahad";
+
+const JWT_SECRET = "prateekb$ahad";
 
 // CREATE ROUTE: using POST method with /api/auth/createuser
 router.post(
@@ -20,13 +21,14 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      res.status(400).json({ errors: errors.array() });
     }
 
     try {
       let user = await User.findOne({ Email: req.body.Email });
+      
       if (user) {
-        return res.status(400).json({success, error: "Email Id Already Exists" });
+        res.status(400).json({success, error: "Email Id Already Exists" });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -35,7 +37,8 @@ router.post(
         Name: req.body.Name,
         Email: req.body.Email,
         Password: secPass,
-      }).then((user) => res.json(user));
+      }).then((user) =>{
+         res.json(user)})
 
       const data = {
         user: {
@@ -44,7 +47,7 @@ router.post(
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
 
-      console.log(success, authtoken);
+      // console.log(success, authtoken);
       res.json({ success, authtoken });
     } catch (error) {
       console.error(error);
@@ -95,7 +98,7 @@ router.post(
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
      let success= true;
-      res.json({ success, authtoken });
+     return res.json({ success, authtoken });
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");

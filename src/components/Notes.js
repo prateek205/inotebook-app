@@ -2,13 +2,19 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import noteContext from "../context/notes/noteContext";
 import NoteItem from "./NoteItem";
 import AddNote from "./AddNote";
+import { useNavigate } from "react-router-dom";
 
-const Notes = () => {
+const Notes = (props) => {
   const context = useContext(noteContext);
-
+  const { showAlert } = props;
+  let navigate = useNavigate();
   const { notes, getAllNotes, editNote } = context;
   useEffect(() => {
-    getAllNotes();
+    if (localStorage.getItem('token')) {
+      getAllNotes();
+    } else {
+      navigate("/login");
+    }
     // eslint-disable-next-line
   }, []);
 
@@ -32,8 +38,9 @@ const Notes = () => {
   };
 
   const handleUpdateClick = (e) => {
-    editNote(note.id, note.editTitle, note.editDescription, note.editTag)
+    editNote(note.id, note.editTitle, note.editDescription, note.editTag);
     refClose.current.click();
+    props.showAlert("Update Successfully!!!", "success");
   };
 
   const handleOnChange = (e) => {
@@ -42,7 +49,7 @@ const Notes = () => {
 
   return (
     <>
-      <AddNote />
+      <AddNote showAlert={showAlert} />
       <button
         style={{ display: "none" }}
         ref={ref}
@@ -86,7 +93,8 @@ const Notes = () => {
                     name="editTag"
                     value={note.editTag}
                     onChange={handleOnChange}
-                    minLength={5} required
+                    minLength={5}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -104,7 +112,8 @@ const Notes = () => {
                     name="editTitle"
                     value={note.editTitle}
                     onChange={handleOnChange}
-                    minLength={5} required
+                    minLength={5}
+                    required
                   />
                 </div>
                 <div className="my-2">
@@ -119,7 +128,8 @@ const Notes = () => {
                     type="text"
                     value={note.editDescription}
                     onChange={handleOnChange}
-                    minLength={5} required
+                    minLength={5}
+                    required
                   ></textarea>
                 </div>
               </form>
@@ -137,7 +147,11 @@ const Notes = () => {
                 onClick={handleUpdateClick}
                 type="button"
                 className="btn btn-primary"
-                disabled={note.editTitle.length < 5 || note.editDescription.length < 5 || note.editTag.length < 5}
+                disabled={
+                  note.editTitle.length < 5 ||
+                  note.editDescription.length < 5 ||
+                  note.editTag.length < 5
+                }
               >
                 Update Notes
               </button>
@@ -148,11 +162,16 @@ const Notes = () => {
       <div className="row my-3">
         <h3>Lists of Notes</h3>
         <div className="container mx-1">
-        {notes.length === 0 ? "No Notes Available" : ""}
+          {notes.length === 0 ? "No Notes Available" : ""}
         </div>
         {notes.map((note) => {
           return (
-            <NoteItem key={note._id} updateNotes={updateNotes} note={note} />
+            <NoteItem
+              key={note._id}
+              updateNotes={updateNotes}
+              showAlert={showAlert}
+              note={note}
+            />
           );
         })}
       </div>
