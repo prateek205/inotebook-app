@@ -11,24 +11,12 @@ const JWT_SECRET = "prateekb$ahad";
 // CREATE ROUTE: using POST method with /api/auth/createuser
 router.post(
   "/createuser",
-  [
-    body("Name", "Enter a Valid Name").isLength({ min: 3 }),
-    body("Email", "Enter a Valid Email Address").isEmail(),
-    body("Password", "Password length should br min 5 charcter").isLength({
-      min: 5,
-    }),
-  ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-    }
-
     try {
       let user = await User.findOne({ Email: req.body.Email });
-      
+
       if (user) {
-        res.status(400).json({success, error: "Email Id Already Exists" });
+      return res.json({ success, error: "Email Id Already Exists" });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -37,19 +25,17 @@ router.post(
         Name: req.body.Name,
         Email: req.body.Email,
         Password: secPass,
-      }).then((user) =>{
-         res.json(user)})
+      }).then((user) => res.json(user));
 
       const data = {
-        user: {
+        user:{
           id: user.id,
-        },
+        }
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
-
-      // console.log(success, authtoken);
-      res.json({ success, authtoken });
-    } catch (error) {
+      console.log(authtoken)
+    } 
+    catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");
     }
@@ -64,7 +50,6 @@ router.post(
     body("Password", "Password should not be blank").exists()),
   ],
   async (req, res) => {
-  
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -77,18 +62,16 @@ router.post(
       if (!user) {
         return res
           .status(400)
-          .json({error: "Please Login again with correct credentials" });
+          .json({ error: "Please Login again with correct credentials" });
       }
 
       const passwordCompare = bcrypt.compare(Password, user.Password);
       if (!passwordCompare) {
-        success= false;
-        return res
-          .status(400)
-          .json({
-            success,
-            error: "Please Login again with correct credentials",
-          });
+        success = false;
+        return res.status(400).json({
+          success,
+          error: "Please Login again with correct credentials",
+        });
       }
 
       const data = {
@@ -97,8 +80,8 @@ router.post(
         },
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
-     let success= true;
-     return res.json({ success, authtoken });
+      let success = true;
+      return res.json({ success, authtoken });
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");
